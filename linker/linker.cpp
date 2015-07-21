@@ -3457,7 +3457,7 @@ extern "C" ElfW(Addr) __linker_init(void* raw_args) {
     _exit(EXIT_FAILURE);
   }
 
-  __libc_init_tls(args);
+  __libc_init_main_thread(args);
 
   // Initialize the linker's own global variables
   linker_so.call_constructors();
