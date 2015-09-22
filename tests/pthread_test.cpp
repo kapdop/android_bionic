@@ -41,6 +41,8 @@
 #include "BionicDeathTest.h"
 #include "ScopedSignalHandler.h"
 
+#include "utils.h"
+
 extern "C" pid_t gettid();
 
 TEST(pthread, pthread_key_create) {
@@ -1157,19 +1159,14 @@ TEST(pthread, pthread_attr_getstack__main_thread) {
 
   // What does /proc/self/maps' [stack] line say?
   void* maps_stack_hi = NULL;
-  FILE* fp = fopen("/proc/self/maps", "r");
-  ASSERT_TRUE(fp != NULL);
-  char line[BUFSIZ];
-  while (fgets(line, sizeof(line), fp) != NULL) {
-    uintptr_t lo, hi;
-    int name_pos;
-    sscanf(line, "%" PRIxPTR "-%" PRIxPTR " %*4s %*x %*x:%*x %*d %n", &lo, &hi, &name_pos);
-    if (strcmp(line + name_pos, "[stack]\n") == 0) {
-      maps_stack_hi = reinterpret_cast<void*>(hi);
+  std::vector<map_record> maps;
+  ASSERT_TRUE(Maps::parse_maps(&maps));
+  for (auto& map : maps) {
+    if (map.pathname == "[stack]") {
+      maps_stack_hi = reinterpret_cast<void*>(map.addr_end);
       break;
     }
   }
-  fclose(fp);
 
   // The stack size should correspond to RLIMIT_STACK.
   rlimit rl;
