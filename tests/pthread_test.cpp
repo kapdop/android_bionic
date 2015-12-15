@@ -1414,6 +1414,9 @@ TEST(pthread, pthread_mutex_lock_NORMAL) {
 
   ASSERT_EQ(0, pthread_mutex_lock(&m.lock));
   ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
+  ASSERT_EQ(0, pthread_mutex_trylock(&m.lock));
+  ASSERT_EQ(EBUSY, pthread_mutex_trylock(&m.lock));
+  ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
 }
 
 TEST(pthread, pthread_mutex_lock_ERRORCHECK) {
@@ -1436,6 +1439,8 @@ TEST(pthread, pthread_mutex_lock_RECURSIVE) {
   ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
   ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
   ASSERT_EQ(0, pthread_mutex_trylock(&m.lock));
+  ASSERT_EQ(0, pthread_mutex_trylock(&m.lock));
+  ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
   ASSERT_EQ(0, pthread_mutex_unlock(&m.lock));
   ASSERT_EQ(EPERM, pthread_mutex_unlock(&m.lock));
 }
